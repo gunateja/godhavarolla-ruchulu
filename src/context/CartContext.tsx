@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { MenuItem } from '@/data/menu';
 
 export interface CartItem {
@@ -11,38 +11,30 @@ export interface CartItem {
 interface CartState {
   items: CartItem[];
   isOpen: boolean;
-  selectedLocation: string;
-  orderPlaced: boolean;
-  customerName: string;
-  customerPhone: string;
 }
 
 type CartAction =
-  | { type: 'ADD_ITEM'; payload: MenuItem }
+  | { type: 'ADD_ITEM'; payload: MenuItem; quantity?: number }
   | { type: 'REMOVE_ITEM'; payload: string }
   | { type: 'UPDATE_QUANTITY'; payload: { id: string; quantity: number } }
   | { type: 'TOGGLE_CART' }
   | { type: 'CLOSE_CART' }
   | { type: 'OPEN_CART' }
-  | { type: 'SET_LOCATION'; payload: string }
-  | { type: 'PLACE_ORDER' }
-  | { type: 'RESET_ORDER' }
-  | { type: 'SET_CUSTOMER_NAME'; payload: string }
-  | { type: 'SET_CUSTOMER_PHONE'; payload: string }
-  | { type: 'CLEAR_CART' };
+  | { type: 'CLEAR_CART' }
+  | { type: 'LOAD_CART'; payload: CartItem[] };
 
 const initialState: CartState = {
   items: [],
   isOpen: false,
-  selectedLocation: '',
-  orderPlaced: false,
-  customerName: '',
-  customerPhone: '',
 };
 
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
+    case 'LOAD_CART':
+      return { ...state, items: action.payload };
+      
     case 'ADD_ITEM': {
+      const q = action.quantity || 1;
       const existingIndex = state.items.findIndex(
         (ci) => ci.item.id === action.payload.id
       );
@@ -50,13 +42,14 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         const newItems = [...state.items];
         newItems[existingIndex] = {
           ...newItems[existingIndex],
-          quantity: newItems[existingIndex].quantity + 1,
+          quantity: newItems[existingIndex].quantity + q,
         };
-        return { ...state, items: newItems };
+        return { ...state, items: newItems, isOpen: true }; // Auto-open cart on add
       }
       return {
         ...state,
-        items: [...state.items, { item: action.payload, quantity: 1 }],
+        items: [...state.items, { item: action.payload, quantity: q }],
+        isOpen: true,
       };
     }
     case 'REMOVE_ITEM':
@@ -86,18 +79,8 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       return { ...state, isOpen: false };
     case 'OPEN_CART':
       return { ...state, isOpen: true };
-    case 'SET_LOCATION':
-      return { ...state, selectedLocation: action.payload };
-    case 'SET_CUSTOMER_NAME':
-      return { ...state, customerName: action.payload };
-    case 'SET_CUSTOMER_PHONE':
-      return { ...state, customerPhone: action.payload };
-    case 'PLACE_ORDER':
-      return { ...state, orderPlaced: true, isOpen: false };
-    case 'RESET_ORDER':
-      return { ...initialState };
     case 'CLEAR_CART':
-      return { ...state, items: [] };
+      return { ...state, items: [], isOpen: false };
     default:
       return state;
   }
@@ -106,8 +89,11 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 interface CartContextType {
   state: CartState;
   dispatch: React.Dispatch<CartAction>;
-  total: number;
+  subTotal: number;
   itemCount: number;
+  shipping: number;
+  total: number;
+  generateWhatsAppOrder: () => string;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -115,15 +101,50 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
-  const total = state.items.reduce(
+  // Load from local storage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('godhavari_cart');
+      if (saved) {
+        dispatch({ type: 'LOAD_CART', payload: JSON.parse(saved) });
+      }
+    } catch (e) {
+      console.error('Failed to load cart', e);
+    }
+  }, []);
+
+  // Save to local storage on change
+  useEffect(() => {
+    localStorage.setItem('godhavari_cart', JSON.stringify(state.items));
+  }, [state.items]);
+
+  const subTotal = state.items.reduce(
     (sum, ci) => sum + ci.item.price * ci.quantity,
     0
   );
 
+  const shipping = subTotal > 500 || subTotal === 0 ? 0 : 40;
+  const total = subTotal + shipping;
   const itemCount = state.items.reduce((sum, ci) => sum + ci.quantity, 0);
 
+  const generateWhatsAppOrder = () => {
+    let message = `*🌺 Order Inquiry from Godhavarolla Ruchulu 🌺*\n\n`;
+    message += `*Items:*\n`;
+    
+    state.items.forEach(ci => {
+      message += `- ${ci.item.name} x${ci.quantity} (₹${ci.item.price * ci.quantity})\n`;
+    });
+    
+    message += `\n*Subtotal:* ₹${subTotal}`;
+    if (shipping > 0) message += `\n*Delivery:* ₹${shipping}`;
+    message += `\n*Total:* ₹${total}\n\n`;
+    message += `Please confirm my order.`;
+    
+    return encodeURIComponent(message);
+  };
+
   return (
-    <CartContext.Provider value={{ state, dispatch, total, itemCount }}>
+    <CartContext.Provider value={{ state, dispatch, subTotal, itemCount, shipping, total, generateWhatsAppOrder }}>
       {children}
     </CartContext.Provider>
   );

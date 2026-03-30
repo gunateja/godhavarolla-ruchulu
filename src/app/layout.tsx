@@ -1,33 +1,24 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { CartProvider } from "@/context/CartContext";
+import type { Metadata } from 'next';
+import './globals.css';
+import { CartProvider } from '@/context/CartContext';
+import FloatingWhatsApp from '@/components/FloatingWhatsApp';
+import MobileBottomBar from '@/components/MobileBottomBar';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: "Godhavarolla Ruchulu | Authentic Telugu Cuisine at Hyderabad Metro",
+  title: 'Godhavarolla Ruchulu | Authentic Godavari Pickles & Sweets',
   description:
-    "Experience the authentic flavours of the Godavari region at your nearest Hyderabad Metro station. Traditional Telugu cuisine — rice bowls, pickles, snacks, sweets & more. Order online for quick pickup!",
+    'Freshly prepared homemade authentic Telugu cuisine, pickles, and sweets with no preservatives. Delivered to your doorstep.',
   keywords: [
-    "Godhavarolla Ruchulu",
-    "Telugu food",
-    "Hyderabad Metro food",
-    "Godavari cuisine",
-    "authentic Telugu snacks",
-    "Andhra pickles",
-    "rice bowls Hyderabad",
-    "metro station food stall",
-    "pootharekulu",
-    "karapusa",
-    "avakai",
-    "gongura",
+    'Godhavarolla Ruchulu',
+    'Telugu food',
+    'Godavari pickles',
+    'homemade sweets',
+    'authentic Telugu snacks',
+    'Andhra pickles',
+    'online food delivery',
   ],
-  openGraph: {
-    title: "Godhavarolla Ruchulu | Authentic Telugu Cuisine",
-    description:
-      "Authentic Godavari flavours at Hyderabad Metro stations. Order online for quick pickup!",
-    type: "website",
-    locale: "en_IN",
-    siteName: "Godhavarolla Ruchulu",
-  },
 };
 
 export default function RootLayout({
@@ -37,16 +28,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-      </head>
-      <body className="noise-overlay">
-        <CartProvider>{children}</CartProvider>
+      <body className="antialiased min-h-screen flex flex-col pt-16 md:pt-20 pb-16 md:pb-0">
+        <CartProvider>
+          {/* Main App Navigation */}
+          <Navbar />
+
+          {/* Main Page Content */}
+          <main className="flex-1 w-full bg-[#FFF8E1]">
+            {children}
+          </main>
+
+          {/* Global Footer */}
+          <Footer />
+
+          {/* Global Persistent Elements */}
+          <FloatingWhatsApp />
+          <MobileBottomBar />
+        </CartProvider>
       </body>
     </html>
   );
