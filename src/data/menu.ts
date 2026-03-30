@@ -52,7 +52,7 @@ export const menuItems: MenuItem[] = [
     description: 'Sun-dried tomatoes blended with roasted garlic and traditional spices. Perfect with hot rice and ghee.',
     price: 180,
     category: 'pickles',
-    image: '',
+    image: '/images/tomato-garlic-pickle.png',
     isVeg: true,
     spiceLevel: 2,
   },
@@ -63,7 +63,7 @@ export const menuItems: MenuItem[] = [
     description: 'Fiery ginger pickle with a warming kick — made with fresh ginger, lemon juice and aromatic spices.',
     price: 180,
     category: 'pickles',
-    image: '',
+    image: '/images/ginger-pickle.png',
     isVeg: true,
     isNew: true,
     spiceLevel: 3,
@@ -88,7 +88,7 @@ export const menuItems: MenuItem[] = [
     description: 'Traditional rice flour discs enriched with jaggery and sesame seeds, deep-fried to golden perfection.',
     price: 150,
     category: 'sweets',
-    image: '',
+    image: '/images/ariselu.png',
     isVeg: true,
   },
   {
@@ -98,7 +98,7 @@ export const menuItems: MenuItem[] = [
     description: 'Melt-in-mouth sugar balls made with roasted Bengal gram flour (urad dal), premium ghee and cardamom.',
     price: 160,
     category: 'sweets',
-    image: '',
+    image: '/images/sunni-undalu.png',
     isVeg: true,
   },
 
@@ -121,7 +121,7 @@ export const menuItems: MenuItem[] = [
     description: 'Paper-thin rice crackers seasoned with cumin, black pepper, and curry leaves, deep-fried for the perfect bite.',
     price: 100,
     category: 'snacks',
-    image: '/images/karapusa.png', // using same image as placeholder for now
+    image: '/images/chekkalu.png',
     isVeg: true,
   },
   {
@@ -131,7 +131,7 @@ export const menuItems: MenuItem[] = [
     description: 'Crunchy peanut brittle made with organic jaggery and roasted peanuts, a perfect sweet-savory treat.',
     price: 80,
     category: 'snacks',
-    image: '',
+    image: '/images/palli-chikki.png',
     isVeg: true,
     isPopular: true,
   }
